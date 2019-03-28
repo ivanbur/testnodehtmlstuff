@@ -1,72 +1,76 @@
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
-const http = require('http');
-const fs = require('fs');
 const express = require('express');
 const path = require('path');
 const app = express();
+const router = express.Router();
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const PORT = 8080;
 
 const URI = 'mongodb+srv://testing_username0:iamatester@clustertesting0-leley.mongodb.net/test?retryWrites=true';
-const dbName = 'aTestDatabase';
-const client = new MongoClient(URI);
 
-// var htmlFile;
-// var jsFile;
+var db;
 
-// fs.readFile('./index.html', function(err, html) {
-// 	if (err) throw err;
+function main() {
+	connectDB();
+	connectHTTP();
+}
 
-// 	htmlFile = html;
-// });
+function connectDB() {
+	mongoose.connect(URI, {useNewUrlParser: true});
 
-// fs.readFile('./frontend.js', function(err, js) {
-// 	if (err) throw err;
-
-// 	jsFile = js;
-// });
-
-// http.createServer(function(req, res) {
-// 	res.setHeader('Content-Type', 'text/html');
-
-// 	if (req.url === '/') {
-// 		res.write(htmlFile);
-// 	} else {
-// 		res.write('Page not found!');
-// 	}
-// 	res.end();
-// }).listen(PORT);
-
-app.use(express.static(__dirname + '/testnodehtmlstuff'));
-
-app.get('/frontend.js', function(req, res) {
-	res.sendFile(path.join(__dirname + '/frontend.js'));
-});
-
-app.get('/', function(req, res) {
-	res.sendFile(path.join(__dirname + '/index.html'));
-});
-
-app.listen(PORT);
-
-client.connect(function(err) {
-	assert.equal(null, err);
-	console.log('Connected successfully to server!');
-
-	let db = client.db(dbName);
-
-	db.collection('aTestCollection').findOne({}, function(err, result) {
-		console.log(result.aTestInt);
+	db = mongoose.connection;
+	db.on('error', console.error.bind(console, 'connection error:'));
+	db.once('open', function() {
+		console.log('connected!');
 	})
 
-	client.close();
-});
+	let obj = { xPos: Number,
+				yPos: Number,
+				col: Number,
+				row: Number,
+				hasPiece: Boolean,
+				piece: Number };
 
-function clickFunction() {
-	console.log('clicked button');
+	let arr = [obj, obj, obj, obj, obj, obj, obj, obj];
+
+	let testSchema = new Schema({
+		board: {
+			tiles: [[{xPos: Number, yPos: Number, col: Number, row: Number,  hasPiece: Boolean, piece: Number}, {xPos: Number, yPos: Number, col: Number, row: Number, hasPiece: Boolean, piece: Number}, xPos: Number, yPos: Number, col: Number, row: Number,  hasPiece: Boolean, piece: Number, xPos: Number, yPos: Number, col: Number, row: Number,  hasPiece: Boolean, piece: Number, xPos: Number, yPos: Number, col: Number, row: Number,  hasPiece: Boolean, piece: Number, xPos: Number, yPos: Number, col: Number, row: Number,  hasPiece: Boolean, piece: Number, xPos: Number, yPos: Number, col: Number, row: Number,  hasPiece: Boolean, piece: Number, xPos: Number, yPos: Number, col: Number, row: Number,  hasPiece: Boolean, piece: Number],
+					[obj, obj, obj, obj, obj, obj, obj, obj],
+					arr,
+					arr,
+					arr,
+					arr,
+					arr,
+					arr];
+		}
+	})
+
+	let testSchema2 = newSchema({
+		name: String,
+		xPos: Number,
+		yPos: Number,
+		col: Number,
+		row: Number,
+		hasPiece: Boolean,
+		piece: Number
+	})
+}
+
+function connectHTTP() {
+	router.get('/', function(req, res) {
+		res.sendFile(path.join(__dirname + '/templates/index.html'));
+	});
+
+	app.use('/js', express.static(__dirname + '/js'));
+	app.use('/', router);
+
+	app.listen(process.env.port || PORT);
 }
 
 function testFunc() {
 	console.log('Test Function Called');
 }
+
+main();
